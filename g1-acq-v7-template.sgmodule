@@ -1,0 +1,14 @@
+#!name=G1 ACQ
+#!desc=v7.6.0：只保留一条映射 —— 原始 g1.ios.20tb.m.v2 改写成 com.google.gemini.2tb.ai.m.3month_ip_99p；其余旧映射（2TB 12 个月 90p、30TB、75p 回退）全部移除；被动采集原始 SKU 与本机报告保留
+#!system=ios
+
+[Rule]
+# 拦截 UDP 443，促使支持回退的 HTTP/3 请求改走 TCP。
+AND,((PROTOCOL,UDP),(DEST-PORT,443)),REJECT-NO-DROP
+
+[Script]
+g1-acq = type=http-response,pattern=^https:\/\/one\.google\.com\/,requires-body=1,max-size=0,script-path=https://cdn.jsdelivr.net/gh/zxc125643/g1-acq@main/g1-acq.js
+g1-sku-report = type=http-request,pattern=^https:\/\/one\.google\.com\/g1-sku-report\/?(?:\?.*)?$,script-path=https://cdn.jsdelivr.net/gh/zxc125643/g1-acq@main/g1-sku-report.js
+
+[MITM]
+hostname = %APPEND% one.google.com
